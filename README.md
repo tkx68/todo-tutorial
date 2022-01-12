@@ -40,3 +40,36 @@ Or with cabal:
 I skip building mobile apps (https://github.com/reflex-frp/reflex-platform/blob/develop/docs/project-development.rst#building-mobile-apps) and using the jsaddle-warp package here.
 
 > jsaddle-warp is an alternative JSaddle backend that uses a local warp server and WebSockets to control a browser from a native Haskell process. This is recommended to allow testing different browsers, and to make use of a browser’s significantly better developer tools.
+
+Since we followed the reflex-platform instructions for setting up the development environment the default.nix file looks somewhat different. We have reflex-platform as a submodule and therefore we have 
+
+    import ./reflex-platform
+
+in our default.nix. Instead the tutorial chooses to include from GitHub like so:
+
+    reflex-platform ? ((import <nixpkgs> {}).fetchFromGitHub {
+        owner = "reflex-frp";
+        repo = "reflex-platform";
+        rev = "efc6d923c633207d18bd4d8cae3e20110a377864";
+        sha256 = "121rmnkx8nwiy96ipfyyv6vrgysv0zpr2br46y70zf4d0y1h1lz5";
+        })
+
+This probably means that I use the latest master branch of the reflex-platform whereas the tutorial uses a fixed version. This might give me some problems in the next steps. But anyway...
+
+Ups, forgot to enable `useWarp = true;`! Can we still build everything?
+
+    nix-build -o backend-result -A ghc.backend
+    nix-build -o frontend-result -A ghcjs.frontend
+
+Yes!
+
+Now I go back to the tutorial. There it is suggested to use ghcid. So we change the frontend slightly and compile with GHC in the nix shell:
+
+    $ nix-shell . -A shells.ghc
+    [nix-shell:~/devel/try-reflex/todo-tutorial]$ ghcid --command 'cabal repl frontend' --test 'Main.main'
+
+And indeed we now have a server at http://localhost:3003/ that shows "Hello, reflex!". If I change the text in the frontend Main.hs file the code is reloaded instantly and the page changes after reloading. That's a nice and quick development cycle.
+
+> The port number is searched for in the JSADDLE_WARP_PORT environment variable. If this variable is not set, value 3003 is used by default.
+
+Note that the backend doesn't do anything up to now. Its just the frontend running on its own warp server.
