@@ -119,7 +119,7 @@ rootWidget :: MonadWidget t m => m ()
 rootWidget =
   divClass "container" $ mdo
     elClass "h2" "text-center mt-3" $ text "Todos"
-    (_, ev) <- runEventWriterT $ do
+    (_, ev) <- runEventWriterT do
       todosDyn <- foldDyn appEndo mempty ev
       newTodoForm
       delimiter
@@ -218,12 +218,12 @@ delimiter :: MonadWidget t m => m ()
 delimiter = rowWrapper $ divClass "border-top mt-3" blank
 
 todoActive :: (EventWriter t (Endo Todos) m, MonadWidget t m) => Int -> Text -> Day -> m ()
-todoActive idx todoText todoDeadline = divClass "d-flex border-bottom" $ do
-  elClass "p" "p-2 flex-grow-1 my-auto" $ do
+todoActive idx todoText todoDeadline = divClass "d-flex border-bottom" do
+  elClass "p" "p-2 flex-grow-1 my-auto" do
     text todoText
     elClass "span" "badge badge-secondary px-2" $
       text $ pack $ formatTime defaultTimeLocale "%F" todoDeadline
-  divClass "p-2 btn-group" $ do
+  divClass "p-2 btn-group" do
     (copyEl, _) <- elAttr' "button" ("class" =: "btn btn-outline-secondary" <> "type" =: "button") $ text "Copy"
     (doneEl, _) <- elAttr' "button" ("class" =: "btn btn-outline-secondary" <> "type" =: "button") $ text "Done"
     (editEl, _) <- elAttr' "button" ("class" =: "btn btn-outline-secondary" <> "type" =: "button") $ text "Edit"
@@ -239,12 +239,12 @@ todoActive idx todoText todoDeadline = divClass "d-flex border-bottom" $ do
 
 todoDone :: (EventWriter t (Endo Todos) m, MonadWidget t m) => Int -> Text -> Day -> m ()
 todoDone idx todoText deadline =
-  divClass "d-flex border-bottom" $ do
-    elClass "p" "p-2 flex-grow-1 my-auto" $ do
+  divClass "d-flex border-bottom" do
+    elClass "p" "p-2 flex-grow-1 my-auto" do
       text todoText
       elClass "span" "badge badge-secondary px-2" $
         text $ pack $ formatTime defaultTimeLocale "%F" deadline
-    divClass "p-2 btn-group" $ do
+    divClass "p-2 btn-group" do
       (doneEl, _) <- elAttr' "button" ("class" =: "btn btn-outline-secondary" <> "type" =: "button") $ text "Undo"
       (delEl, _) <- elAttr' "button" ("class" =: "btn btn-outline-secondary" <> "type" =: "button") $ text "Drop"
       tellEvent $
@@ -255,11 +255,11 @@ todoDone idx todoText deadline =
             ]
 
 todoEditable :: (EventWriter t (Endo Todos) m, MonadWidget t m) => Int -> Text -> m ()
-todoEditable idx todoText = divClass "d-flex border-bottom" $ do
+todoEditable idx todoText = divClass "d-flex border-bottom" do
   updTodoDyn <-
     divClass "p-2 flex-grow-1 my-auto" $
       editTodoForm todoText
-  divClass "p-2 btn-group" $ do
+  divClass "p-2 btn-group" do
     (doneEl, _) <- elAttr' "button" ("class" =: "btn btn-outline-secondary" <> "type" =: "button") $ text "Finish edit"
     let updTodos = \todo -> Endo $ update (Just . finishEdit todo) idx
     tellEvent $
