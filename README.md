@@ -4,15 +4,15 @@ Here I follow the tutorial at https://typeable.io/blog/2021-03-15-reflex-1. The 
 
 First I set up a development environment using the instructions at https://github.com/reflex-frp/reflex-platform/blob/develop/docs/project-development.rst.
 
-* Here I have to choose cabal version 2.4 instead of the latest 3.* version.
-* Do not fix the version of base (which determines the compiler version) but leave it blank and let the build system make the choice.
+- Here I have to choose cabal version 2.4 instead of the latest 3.\* version.
+- Do not fix the version of base (which determines the compiler version) but leave it blank and let the build system make the choice.
 
 After performing the steps https://github.com/reflex-frp/reflex-platform/blob/develop/docs/project-development.rst and https://github.com/reflex-frp/reflex-platform/blob/develop/docs/project-development.rst I can indeed build the two executables:
 
     nix-build -o backend-result -A ghc.backend
     nix-build -o frontend-result -A ghcjs.frontend
 
-After creating the cabal*.project files I can build with cabal in a nix shell:
+After creating the cabal\*.project files I can build with cabal in a nix shell:
 
     $ nix-shell -A shells.ghc
     [nix-shell:~/path]$ cabal build all
@@ -41,7 +41,7 @@ I skip building mobile apps (https://github.com/reflex-frp/reflex-platform/blob/
 
 > jsaddle-warp is an alternative JSaddle backend that uses a local warp server and WebSockets to control a browser from a native Haskell process. This is recommended to allow testing different browsers, and to make use of a browser’s significantly better developer tools.
 
-Since we followed the reflex-platform instructions for setting up the development environment the default.nix file looks somewhat different. We have reflex-platform as a submodule and therefore we have 
+Since we followed the reflex-platform instructions for setting up the development environment the default.nix file looks somewhat different. We have reflex-platform as a submodule and therefore we have
 
     import ./reflex-platform
 
@@ -74,5 +74,117 @@ And indeed we now have a server at http://localhost:3003/ that shows "Hello, ref
 
 Note that the backend doesn't do anything up to now. Its just the frontend running on its own warp server.
 
+# How to get Haskell Language Server working
+
+Simply install HLS with ghcup in the main Linux OS. The start nix shell with
+
+    $ nix-shell . -A shells.ghc
+
+and within nix shell start VS Code:
+
+    [nix-shell:~/devel/try-reflex/todo-tutorial]$ code .
+
+Now set your normal wrapper as the HLS executable in VS Code options. You can find this with e.g.
+
+    [nix-shell:~/devel/try-reflex/todo-tutorial]$ which haskell-language-server-wrapper
+    /home/torsten/.local/bin/haskell-language-server-wrapper
+
+In this case search for "haskell server" in the options and set
+
+    ${HOME}/.local/bin/haskell-language-server-wrapper
+
+there. No restart VS Code.
+
+# Compiler and language extensions
+
+We use the compiler version GHC 8.6.5 with the current setup. This limits our useful language extensions to the following list:
+
+    * BangPatterns
+    * BinaryLiterals
+    * BlockArguments
+    * ConstrainedClassMethods
+    * ConstraintKinds
+    * DataKinds
+    * DeriveDataTypeable
+    * DeriveFoldable
+    * DeriveFunctor
+    * DeriveGeneric
+    * DeriveLift
+    * DeriveTraversable
+    * DerivingStrategies
+    * DoAndIfThenElse
+    * EmptyCase
+    * EmptyDataDecls
+    * EmptyDataDeriving
+    * ExistentialQuantification
+    * ExplicitForAll
+    * FlexibleContexts
+    * FlexibleInstances
+    * FunctionalDependencies
+    * GADTs
+    * GADTSyntax
+    * GeneralisedNewtypeDeriving
+    * HexFloatLiterals
+    * InstanceSigs
+    * KindSignatures
+    * LambdaCase
+    * MonoLocalBinds
+    * MonomorphismRestriction
+    * MultiParamTypeClasses
+    * MultiWayIf
+    * NamedFieldPuns
+    * NamedWildCards
+    * NoImplicitPrelude
+    * NumericUnderscores
+    * OverloadedStrings
+    * PatternGuards
+    * PolyKinds
+    * PostfixOperators
+    * QuasiQuotes
+    * RankNTypes
+    * RecordWildCards
+    * RecursiveDo
+    * ScopedTypeVariables
+    * StandaloneDeriving
+    * TemplateHaskell
+    * TupleSections
+    * TypeApplications
+    * TypeFamilies
+    * TypeOperators
+    * TypeSynonymInstances
+    * UnicodeSyntax
+    * ViewPatterns
+
+Further we add the following compiler options in order to get stricter errors and more warnings:
+
+    * -Wall
+    * -Wcompat
+    * -optP-Wno-nonportable-include-path
+    * -fdiagnostics-color=always
+    * -Werror=missing-methods
+    * -Werror=unused-top-binds
+    * -Werror=unused-pattern-binds
+    * -Werror=incomplete-patterns
+    * -Werror=overlapping-patterns
+    * -Werror=missing-methods
+    * -Werror=unrecognised-pragmas
+    * -Werror=duplicate-exports
+    * -Werror=missing-fields
+    * -Werror=wrong-do-bind
+    * -Werror=simplifiable-class-constraints
+    * -Werror=deferred-type-errors
+    * -Werror=tabs
+    * -Werror=inaccessible-code
+    * -Werror=star-binder
+    * -fwarn-tabs
+    * -Wno-orphans
+    * -Wunused-packages
+    * -Wincomplete-uni-patterns
+
 # Simplest TODO Application
 
+I use the Prelude replacement Relude in order not to make things too easy. Now add the frontend elements 
+from the tutorial. Things work except that I had to fix the optimised version of the `todoWidget` function.
+
+Due to BlockArguments language extension I can drop the $ signs in front of the `do`s now. Furthermore I 
+add Bootstrap support and my favorite icon.
