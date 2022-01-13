@@ -116,11 +116,7 @@ newTodoForm = rowWrapper $
       iEl <-
         inputElement $
           def
-            & initialAttributes
-              .~ ( "type" =: "text"
-                     <> "class" =: "form-control"
-                     <> "placeholder" =: "Todo"
-                 )
+            & initialAttributes .~ ("type" =: "text" <> "class" =: "form-control" <> "placeholder" =: "Todo")
             & inputElementConfig_setValue .~ ("" <$ btnEv)
       let addNewTodo = \todo -> Endo $ \todos ->
             insert (nextKey todos) (newTodo todo) todos
@@ -141,18 +137,6 @@ todoListWidget todosDyn = rowWrapper do
       (M.fromAscList . IM.toAscList <$> todosDyn)
       todoWidget
   pure $ switchDyn $ leftmost . M.elems <$> evs
-
-{-
--- Simple version
-todoWidget :: MonadWidget t m => Int -> Dynamic t Todo -> m (Event t (Endo Todos))
-todoWidget idx todoDyn = do
-  todoEvEv <- dyn $ -- dyn function updates the DOM every time the todoDyn is updated
-    ffor todoDyn $ \Todo {..} -> case todoState of
-      TodoDone -> todoDone idx todoText
-      TodoActive False -> todoActive idx todoText
-      TodoActive True -> todoEditable idx todoText
-  switchHold never todoEvEv
- -}
 
 -- Optimised version
 todoWidget :: MonadWidget t m => Int -> Dynamic t Todo -> m (Event t (Endo Todos))
@@ -175,36 +159,15 @@ rowWrapper ma =
     divClass "col-6" ma
 
 delimiter :: MonadWidget t m => m ()
-delimiter =
-  rowWrapper $
-    divClass "border-top mt-3" blank
+delimiter = rowWrapper $ divClass "border-top mt-3" blank
 
 todoActive :: MonadWidget t m => Int -> Text -> m (Event t (Endo Todos))
 todoActive idx todoText = divClass "d-flex border-bottom" $ do
-  divClass "p-2 flex-grow-1 my-auto" $
-    text todoText
+  divClass "p-2 flex-grow-1 my-auto" $ text todoText
   divClass "p-2 btn-group" $ do
-    (doneEl, _) <-
-      elAttr'
-        "button"
-        ( "class" =: "btn btn-outline-secondary"
-            <> "type" =: "button"
-        )
-        $ text "Done"
-    (editEl, _) <-
-      elAttr'
-        "button"
-        ( "class" =: "btn btn-outline-secondary"
-            <> "type" =: "button"
-        )
-        $ text "Edit"
-    (delEl, _) <-
-      elAttr'
-        "button"
-        ( "class" =: "btn btn-outline-secondary"
-            <> "type" =: "button"
-        )
-        $ text "Drop"
+    (doneEl, _) <- elAttr' "button" ("class" =: "btn btn-outline-secondary" <> "type" =: "button") $ text "Done"
+    (editEl, _) <- elAttr' "button" ("class" =: "btn btn-outline-secondary" <> "type" =: "button") $ text "Edit"
+    (delEl, _) <- elAttr' "button" ("class" =: "btn btn-outline-secondary" <> "type" =: "button") $ text "Drop"
     pure $
       Endo
         <$> leftmost
@@ -218,20 +181,8 @@ todoDone idx todoText = divClass "d-flex border-bottom" $ do
   divClass "p-2 flex-grow-1 my-auto" $
     el "del" $ text todoText
   divClass "p-2 btn-group" $ do
-    (doneEl, _) <-
-      elAttr'
-        "button"
-        ( "class" =: "btn btn-outline-secondary"
-            <> "type" =: "button"
-        )
-        $ text "Undo"
-    (delEl, _) <-
-      elAttr'
-        "button"
-        ( "class" =: "btn btn-outline-secondary"
-            <> "type" =: "button"
-        )
-        $ text "Drop"
+    (doneEl, _) <- elAttr' "button" ("class" =: "btn btn-outline-secondary" <> "type" =: "button") $ text "Undo"
+    (delEl, _) <- elAttr' "button" ("class" =: "btn btn-outline-secondary" <> "type" =: "button") $ text "Drop"
     pure $
       Endo
         <$> leftmost
@@ -245,13 +196,7 @@ todoEditable idx todoText = divClass "d-flex border-bottom" $ do
     divClass "p-2 flex-grow-1 my-auto" $
       editTodoForm todoText
   divClass "p-2 btn-group" $ do
-    (doneEl, _) <-
-      elAttr'
-        "button"
-        ( "class" =: "btn btn-outline-secondary"
-            <> "type" =: "button"
-        )
-        $ text "Finish edit"
+    (doneEl, _) <- elAttr' "button" ("class" =: "btn btn-outline-secondary" <> "type" =: "button") $ text "Finish edit"
     let updTodos = \todo -> Endo $ update (Just . finishEdit todo) idx
     pure $
       tagPromptlyDyn (updTodos <$> updTodoDyn) (domEvent Click doneEl)
