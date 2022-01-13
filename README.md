@@ -203,4 +203,10 @@ Now I have to build with
 
    $ nix-build . -A ghcjs.frontend -o frontend-bin
 
-This gives me a new folder `frontend` with a rich structure underneath. Amongst others there is an index.html and frontend.jsexe. Opening the index.html shows the application.
+This gives me a new folder `frontend` with a rich structure underneath. Amongst others there is an 
+index.html and frontend.jsexe. Opening the index.html shows the application.
+
+The correct versions in the 'default.nix' file seem to be important. The package `ghcjs-dom-contrib` 
+can otherwise not be built. Therefore I drop the approach to git clone the imported packages.
+
+The first compilation takes an abysmal amount of time. I am curious whether this speeds up the second time. Okay, following build times are much shorter.
