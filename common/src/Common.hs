@@ -1,5 +1,6 @@
 module Common where
 
+import Data.Time.Calendar
 import Relude
 
 data TodoState
@@ -9,11 +10,12 @@ data TodoState
 
 data Todo = Todo
   { todoText :: Text,
+    todoDeadline :: Day,
     todoState :: TodoState
   }
   deriving (Generic, Eq, Show)
 
 type Todos = IntMap Todo
 
-newTodo :: Text -> Todo
-newTodo todoText = Todo {todoState = TodoActive False, ..}
+newTodo :: Text -> Day -> Todo
+newTodo todoText todoDeadline = Todo {todoState = TodoActive False, ..}

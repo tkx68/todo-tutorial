@@ -4,6 +4,7 @@ docs/reference/modules.md
 
 # Nix build results
 /*result
+/*bin
 /nt
 
 # Created by https://www.gitignore.io/api/haskell,emacs,vim
@@ -100,3 +101,4 @@ tags
 
 # End of https://www.gitignore.io/api/haskell,emacs,vim
 nix-tools-src-new.json
+*.code-workspace

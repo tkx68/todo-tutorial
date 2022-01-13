@@ -195,3 +195,12 @@ Again there is a slight mistage in `todoWidget`. I have to add a `void $` here.
 
 # Using ghcjs-dom
 
+It works!
+
+# Using JS FFI
+
+Now I have to build with
+
+   $ nix-build . -A ghcjs.frontend -o frontend-bin
+
+This gives me a new folder `frontend` with a rich structure underneath. Amongst others there is an index.html and frontend.jsexe. Opening the index.html shows the application.
