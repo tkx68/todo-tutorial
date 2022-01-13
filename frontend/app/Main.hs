@@ -7,6 +7,7 @@ import qualified Data.IntMap as IM
 import qualified Data.Map as M
 import Data.Text (Text)
 import GHC.Generics
+import GHCJS
 import Reflex.Dom
 import Relude
 import Relude.Extra.Map
@@ -134,12 +135,13 @@ todoWidget idx todoDyn' = do
   -- Dynamic passed to it operates and hasn’t changed its value, the output Dynamic won’t
   -- operate and, consequently, in our case, the DOM won’t be rebuilt unnecessarily.
   todoDyn <- holdUniqDyn todoDyn'
-  void $ dyn $ -- dyn function updates the DOM every time the todoDyn is updated
-    ffor todoDyn $ \Todo {..} ->
-      case todoState of
-        TodoDone -> todoDone idx todoText
-        TodoActive False -> todoActive idx todoText
-        TodoActive True -> todoEditable idx todoText
+  void $
+    dyn $ -- dyn function updates the DOM every time the todoDyn is updated
+      ffor todoDyn $ \Todo {..} ->
+        case todoState of
+          TodoDone -> todoDone idx todoText
+          TodoActive False -> todoActive idx todoText
+          TodoActive True -> todoEditable idx todoText
 
 rowWrapper :: MonadWidget t m => m a -> m a
 rowWrapper ma =
@@ -153,9 +155,11 @@ todoActive :: (EventWriter t (Endo Todos) m, MonadWidget t m) => Int -> Text -> 
 todoActive idx todoText = divClass "d-flex border-bottom" $ do
   divClass "p-2 flex-grow-1 my-auto" $ text todoText
   divClass "p-2 btn-group" $ do
+    (copyEl, _) <- elAttr' "button" ("class" =: "btn btn-outline-secondary" <> "type" =: "button") $ text "Copy"
     (doneEl, _) <- elAttr' "button" ("class" =: "btn btn-outline-secondary" <> "type" =: "button") $ text "Done"
     (editEl, _) <- elAttr' "button" ("class" =: "btn btn-outline-secondary" <> "type" =: "button") $ text "Edit"
     (delEl, _) <- elAttr' "button" ("class" =: "btn btn-outline-secondary" <> "type" =: "button") $ text "Drop"
+    copyByEvent todoText $ domEvent Click copyEl
     tellEvent $
       Endo
         <$> leftmost
