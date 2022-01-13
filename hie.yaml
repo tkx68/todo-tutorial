@@ -1,0 +1,21 @@
+cradle:
+  multi:
+    - path: "reflex-platform"
+      config:
+        cradle:
+          none:
+    - path: "backend/app/Main.hs"
+      config:
+        cradle:
+         cabal:
+           component: "backend:exe:backend"
+    - path: "common/src"
+      config:
+        cradle:
+         cabal:
+           component: "lib:common"
+    - path: "frontend/app/Main.hs"
+      config:
+        cradle:
+         cabal:
+           component: "frontend:exe:frontend"
