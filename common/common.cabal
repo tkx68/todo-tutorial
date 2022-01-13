@@ -27,6 +27,63 @@ library
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
-    build-depends:    base
+    build-depends:    base, relude, text
     hs-source-dirs:   src
     default-language: Haskell2010
+    default-extensions:
+        BangPatterns
+        BinaryLiterals
+        BlockArguments
+        ConstrainedClassMethods
+        ConstraintKinds
+        DataKinds
+        DeriveDataTypeable
+        DeriveFoldable
+        DeriveFunctor
+        DeriveGeneric
+        DeriveLift
+        DeriveTraversable
+        DerivingStrategies
+        DoAndIfThenElse
+        EmptyCase
+        EmptyDataDecls
+        EmptyDataDeriving
+        ExistentialQuantification
+        ExplicitForAll
+        FlexibleContexts
+        FlexibleInstances
+        FunctionalDependencies
+        GADTs
+        GADTSyntax
+        GeneralisedNewtypeDeriving
+        HexFloatLiterals
+        InstanceSigs
+        KindSignatures
+        LambdaCase
+        MonoLocalBinds
+        MonomorphismRestriction
+        MultiParamTypeClasses
+        MultiWayIf
+        NamedFieldPuns
+        NamedWildCards
+        NoImplicitPrelude
+        NumericUnderscores
+        OverloadedStrings
+        PatternGuards
+        PolyKinds
+        PostfixOperators
+        QuasiQuotes
+        RankNTypes
+        RecordWildCards
+        RecursiveDo
+        ScopedTypeVariables
+        StandaloneDeriving
+        TemplateHaskell
+        TupleSections
+        TypeApplications
+        TypeFamilies
+        TypeOperators
+        TypeSynonymInstances
+        UnicodeSyntax
+        ViewPatterns
+    ghc-options: -optP-Wno-nonportable-include-path -fdiagnostics-color=always -Wall -rtsopts=all -Werror=missing-methods -Werror=unused-top-binds -Werror=unused-pattern-binds -Werror=incomplete-patterns -Werror=overlapping-patterns -Werror=missing-methods -Werror=unrecognised-pragmas -Werror=duplicate-exports -Werror=missing-fields -Werror=wrong-do-bind -Werror=simplifiable-class-constraints -Werror=deferred-type-errors -Werror=tabs -Werror=inaccessible-code -Werror=star-binder -Wcompat -fwarn-tabs -Wno-orphans -Wunused-packages -Wincomplete-uni-patterns
