@@ -63,12 +63,13 @@ headWidget = do
 
 rootWidget :: MonadWidget t m => m ()
 rootWidget =
-  divClass "container" $ do
+  divClass "container" $ mdo
     elClass "h2" "text-center mt-3" $ text "Todos"
-    newTodoEv <- newTodoForm
-    rec todosDyn <- foldDyn appEndo mempty $ leftmost [newTodoEv, todoEv]
-        delimiter
-        todoEv <- todoListWidget todosDyn
+    (_, ev) <- runEventWriterT $ do
+      todosDyn <- foldDyn appEndo mempty ev
+      newTodoForm
+      delimiter
+      todoListWidget todosDyn
     blank
 
 updateTodo :: TodoEvent -> Todos -> Todos
@@ -99,7 +100,7 @@ toggleTodo Todo {..} = Todo {todoState = toggleState todoState, ..}
 nextKey :: IntMap Todo -> Int
 nextKey = maybe 0 (succ . fst . fst) . maxViewWithKey
 
-newTodoForm :: MonadWidget t m => m (Event t (Endo Todos))
+newTodoForm :: (EventWriter t (Endo Todos) m, MonadWidget t m) => m ()
 newTodoForm = rowWrapper $
   el "form" $
     divClass "input-group" $ mdo
@@ -118,30 +119,27 @@ newTodoForm = rowWrapper $
         divClass "input-group-append" $
           elAttr' "button" btnAttr $ text "Add new entry"
       let btnEv = domEvent Click btnEl
-      pure $ tagPromptlyDyn newTodoDyn $ domEvent Click btnEl
+      tellEvent $ tagPromptlyDyn newTodoDyn $ domEvent Click btnEl
 
-todoListWidget :: MonadWidget t m => Dynamic t Todos -> m (Event t (Endo Todos))
-todoListWidget todosDyn = rowWrapper do
-  evs <-
-    listWithKey
-      (M.fromAscList . IM.toAscList <$> todosDyn)
-      todoWidget
-  pure $ switchDyn $ leftmost . M.elems <$> evs
+todoListWidget :: (EventWriter t (Endo Todos) m, MonadWidget t m) => Dynamic t Todos -> m ()
+todoListWidget todosDyn =
+  rowWrapper $
+    void $ listWithKey (M.fromAscList . IM.toAscList <$> todosDyn) todoWidget
 
--- Optimised version
-todoWidget :: MonadWidget t m => Int -> Dynamic t Todo -> m (Event t (Endo Todos))
+-- Optimised version with EventWirter
+todoWidget :: (EventWriter t (Endo Todos) m, MonadWidget t m) => Int -> Dynamic t Todo -> m ()
 todoWidget idx todoDyn' = do
   -- What’s going on here? The matter is that though the Dynamic operates, the value it
   -- contains remains unchanged. Function `holdUniqDyn` works just this way, so that if the
   -- Dynamic passed to it operates and hasn’t changed its value, the output Dynamic won’t
   -- operate and, consequently, in our case, the DOM won’t be rebuilt unnecessarily.
   todoDyn <- holdUniqDyn todoDyn'
-  todoEvEv <- dyn $ -- dyn function updates the DOM every time the todoDyn is updated
-    ffor todoDyn $ \Todo {..} -> case todoState of
-      TodoDone -> todoDone idx todoText
-      TodoActive False -> todoActive idx todoText
-      TodoActive True -> todoEditable idx todoText
-  switchHold never todoEvEv
+  void $ dyn $ -- dyn function updates the DOM every time the todoDyn is updated
+    ffor todoDyn $ \Todo {..} ->
+      case todoState of
+        TodoDone -> todoDone idx todoText
+        TodoActive False -> todoActive idx todoText
+        TodoActive True -> todoEditable idx todoText
 
 rowWrapper :: MonadWidget t m => m a -> m a
 rowWrapper ma =
@@ -151,14 +149,14 @@ rowWrapper ma =
 delimiter :: MonadWidget t m => m ()
 delimiter = rowWrapper $ divClass "border-top mt-3" blank
 
-todoActive :: MonadWidget t m => Int -> Text -> m (Event t (Endo Todos))
+todoActive :: (EventWriter t (Endo Todos) m, MonadWidget t m) => Int -> Text -> m ()
 todoActive idx todoText = divClass "d-flex border-bottom" $ do
   divClass "p-2 flex-grow-1 my-auto" $ text todoText
   divClass "p-2 btn-group" $ do
     (doneEl, _) <- elAttr' "button" ("class" =: "btn btn-outline-secondary" <> "type" =: "button") $ text "Done"
     (editEl, _) <- elAttr' "button" ("class" =: "btn btn-outline-secondary" <> "type" =: "button") $ text "Edit"
     (delEl, _) <- elAttr' "button" ("class" =: "btn btn-outline-secondary" <> "type" =: "button") $ text "Drop"
-    pure $
+    tellEvent $
       Endo
         <$> leftmost
           [ update (Just . toggleTodo) idx <$ domEvent Click doneEl,
@@ -166,21 +164,21 @@ todoActive idx todoText = divClass "d-flex border-bottom" $ do
             delete idx <$ domEvent Click delEl
           ]
 
-todoDone :: MonadWidget t m => Int -> Text -> m (Event t (Endo Todos))
+todoDone :: (EventWriter t (Endo Todos) m, MonadWidget t m) => Int -> Text -> m ()
 todoDone idx todoText = divClass "d-flex border-bottom" $ do
   divClass "p-2 flex-grow-1 my-auto" $
     el "del" $ text todoText
   divClass "p-2 btn-group" $ do
     (doneEl, _) <- elAttr' "button" ("class" =: "btn btn-outline-secondary" <> "type" =: "button") $ text "Undo"
     (delEl, _) <- elAttr' "button" ("class" =: "btn btn-outline-secondary" <> "type" =: "button") $ text "Drop"
-    pure $
+    tellEvent $
       Endo
         <$> leftmost
           [ update (Just . toggleTodo) idx <$ domEvent Click doneEl,
             delete idx <$ domEvent Click delEl
           ]
 
-todoEditable :: MonadWidget t m => Int -> Text -> m (Event t (Endo Todos))
+todoEditable :: (EventWriter t (Endo Todos) m, MonadWidget t m) => Int -> Text -> m ()
 todoEditable idx todoText = divClass "d-flex border-bottom" $ do
   updTodoDyn <-
     divClass "p-2 flex-grow-1 my-auto" $
@@ -188,7 +186,7 @@ todoEditable idx todoText = divClass "d-flex border-bottom" $ do
   divClass "p-2 btn-group" $ do
     (doneEl, _) <- elAttr' "button" ("class" =: "btn btn-outline-secondary" <> "type" =: "button") $ text "Finish edit"
     let updTodos = \todo -> Endo $ update (Just . finishEdit todo) idx
-    pure $
+    tellEvent $
       tagPromptlyDyn (updTodos <$> updTodoDyn) (domEvent Click doneEl)
 
 editTodoForm :: MonadWidget t m => Text -> m (Dynamic t Text)

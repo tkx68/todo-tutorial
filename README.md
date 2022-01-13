@@ -187,4 +187,11 @@ I use the Prelude replacement Relude in order not to make things too easy. Now a
 from the tutorial. Things work except that I had to fix the optimised version of the `todoWidget` function.
 
 Due to BlockArguments language extension I can drop the $ signs in front of the `do`s now. Furthermore I 
-add Bootstrap support and my favorite icon.
+add Bootstrap 5 support and my favorite icon.
+
+# Using EventWriter
+
+Again there is a slight mistage in `todoWidget`. I have to add a `void $` here.
+
+# Using ghcjs-dom
+
