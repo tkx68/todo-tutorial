@@ -1,38 +1,34 @@
 cabal-version:      2.4
-name:               frontend
+name:               todo-common
 version:            0.1.0.0
-
--- A short (one-line) description of the package.
--- synopsis:
+synopsis:
 
 -- A longer description of the package.
 -- description:
+homepage:
 
 -- A URL where users can report bugs.
 -- bug-reports:
-
--- The license under which the package is released.
--- license:
+license:            BSD-2-Clause
+license-file:       LICENSE
 author:             Torsten Kemps-Benedix
 maintainer:         torsten.kemps-benedix@conzone.net
 
 -- A copyright notice.
 -- copyright:
--- category:
+category:           Web
 extra-source-files: CHANGELOG.md
 
-executable frontend
-    main-is:          Main.hs
+library
+    exposed-modules:  Common
 
-    -- Modules included in this executable, other than Main.
-    other-modules:
-        GHCJS
-        JSFFI
+    -- Modules included in this library but not exported.
+    -- other-modules:
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
-    build-depends:    base, relude, containers, lens, ghcjs-dom, text, time, common, reflex-dom, reflex-dom-contrib
-    hs-source-dirs:   app
+    build-depends:    base, relude, text, time
+    hs-source-dirs:   src
     default-language: Haskell2010
     default-extensions:
         BangPatterns

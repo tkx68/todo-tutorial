@@ -13,27 +13,27 @@ let
   };
 
   override = self: pkg: with pkgs.haskell.lib;
-  doJailbreak (pkg.overrideAttrs
-  (old: {
-    buildInputs = old.buildInputs ++ [ self.doctest self.cabal-doctest ];
-  }));
+    doJailbreak (pkg.overrideAttrs
+    (old: {
+      buildInputs = old.buildInputs ++ [ self.doctest self.cabal-doctest ];
+    }));
 
 in {
   useWarp = true;
 
   overrides = self: super: with pkgs.haskell.lib; rec {
-    reflex-dom-contrib = dontHaddock (override self
-      (self.callCabal2nix "reflex-dom-contrib" reflexDomContribSrc { }));
+    reflex-dom-contrib = override self
+      (self.callCabal2nix "reflex-dom-contrib" reflexDomContribSrc { });
   };
 
   packages = {
-    common = ./common;
-    backend = ./backend;
-    frontend = ./frontend;
+    todo-common = ./todo-common;
+    todo-backend = ./todo-backend;
+    todo-frontend = ./todo-frontend;
   };
 
   shells = {
-    ghc = ["common" "backend" "frontend"];
-    ghcjs = ["common" "frontend"];
+    ghc = ["todo-common" "todo-backend" "todo-frontend"];
+    ghcjs = ["todo-common" "todo-frontend"];
   };
 })

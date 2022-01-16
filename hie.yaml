@@ -4,18 +4,22 @@ cradle:
       config:
         cradle:
           none:
-    - path: "backend/app/Main.hs"
+    - path: "reflex-dom-contrib"
+      config:
+        cradle:
+          none:
+    - path: "todo-backend/app/Main.hs"
       config:
         cradle:
          cabal:
-           component: "backend:exe:backend"
-    - path: "common/src"
+           component: "todo-backend:exe:todo-backend"
+    - path: "todo-common/src"
       config:
         cradle:
          cabal:
            component: "lib:common"
-    - path: "frontend/app/Main.hs"
+    - path: "todo-frontend/app/Main.hs"
       config:
         cradle:
          cabal:
-           component: "frontend:exe:frontend"
+           component: "todo-frontend:exe:todo-frontend"

@@ -1,5 +1,5 @@
 -- cabal.project
 packages:
-  common/
-  backend/
-  frontend/
+  todo-common/
+  todo-backend/
+  todo-frontend/

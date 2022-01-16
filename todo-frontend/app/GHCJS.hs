@@ -15,7 +15,7 @@ import GHCJS.DOM.Types hiding (Event, Text)
 import Reflex.Dom
 import Relude
 
--- | This following function is the equivalent of adding the following JS to an event handler:
+-- | This following JavaScript function is the equivalent of adding the following JS to an event handler:
 --
 --     function toClipboard(txt){
 --       var inpEl = document.createElement("textarea");
